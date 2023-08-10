@@ -75,47 +75,47 @@ router.post('/login', (req, res) => {
 })
 
 //not used
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD
-    }
-})
+// var transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//         user: process.env.EMAIL,
+//         pass: process.env.PASSWORD
+//     }
+// })
 
-router.post('/forgotPassword', auth.authenticateToken, (req, res) => {
-    const user = req.body;
-    query = 'select email, password from user where email=?'
+// router.post('/forgotPassword', auth.authenticateToken, (req, res) => {
+//     const user = req.body;
+//     query = 'select email, password from user where email=?'
 
-    connection.query(query, [user.email], (error, result) => {
-        if (!error) {
-            if (result.length <= 0) {
-                res.status(200).json({
-                    message: 'password sent successfully to your email address.'
-                })
-            } else {
-                var mailOptions = {
-                    from: process.env.EMAIL,
-                    to: result[0].email,
-                    subject: 'Password by cafe management system',
-                    html: '<p><b>Your login details for cafe management system.</b><br><b>Email:</b>' + result[0].email + '<br><b>Password:</b>' + result[0].password + '<br><a href="http://localhost:4200">Click here to login</a>' + '</p>'
-                };
-                transporter.sendMail(mailOptions, (err, info) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log('Email sent' + info.response);
-                    }
-                })
-                return res.status(200).json({
-                    message: 'Password sent successfully to your email address'
-                })
-            }
-        } else {
-            return res.status(500).json(error)
-        }
-    })
-})
+//     connection.query(query, [user.email], (error, result) => {
+//         if (!error) {
+//             if (result.length <= 0) {
+//                 res.status(200).json({
+//                     message: 'password sent successfully to your email address.'
+//                 })
+//             } else {
+//                 var mailOptions = {
+//                     from: process.env.EMAIL,
+//                     to: result[0].email,
+//                     subject: 'Password by cafe management system',
+//                     html: '<p><b>Your login details for cafe management system.</b><br><b>Email:</b>' + result[0].email + '<br><b>Password:</b>' + result[0].password + '<br><a href="http://localhost:4200">Click here to login</a>' + '</p>'
+//                 };
+//                 transporter.sendMail(mailOptions, (err, info) => {
+//                     if (err) {
+//                         console.log(err);
+//                     } else {
+//                         console.log('Email sent' + info.response);
+//                     }
+//                 })
+//                 return res.status(200).json({
+//                     message: 'Password sent successfully to your email address'
+//                 })
+//             }
+//         } else {
+//             return res.status(500).json(error)
+//         }
+//     })
+// })
 
 router.get('/getAllUser', auth.authenticateToken, (req, res) => {
     var sqlQuery = 'select id,name,email,contactNumber from user where role="user"';
@@ -149,10 +149,48 @@ router.patch('/updateStatus', auth.authenticateToken, (req, res) => {
     })
 })
 
+router.post('/emailVerify', (req, res) => {
+    var body = req.body.email;
+    var sqlQuery = 'SELECT * FROM user WHERE email = ?';
+    connection.query(sqlQuery, [body], (error, result) => {
+        if (!error && result.length > 0) {
+            return res.status(200).json({
+                message: "Email verified successfully.",
+                data: result
+            });
+        } else {
+            return res.status(400).json({
+                message: "Email is not verified. Please enter a valid email address."
+            });
+        }
+    });
+});
 
-router.get('/checkToken', (req, res) => {
+router.patch('/updatePassword', (req, res) => {
+    var body = req.body;
+    const sqlQuery = 'update user set password=? where id=? && email=?';
+    connection.query(sqlQuery, [body.password, body.id, body.email], (error, result) => {
+        if (!error) {
+            if (result.affectedRows == 0) {
+                return res.status(404).json({
+                    message: 'Email is not exist'
+                })
+            } else {
+                return res.status(200).json({
+                    message: 'User password updated successfully'
+                })
+            }
+
+        } else {
+            return res.status(500).json(error)
+        }
+    })
+})
+
+router.get('/checkToken', auth.authenticateToken, (req, res) => {
     return res.status(200).json({
         message: 'true'
     })
 })
+
 module.exports = router
