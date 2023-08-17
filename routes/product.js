@@ -6,8 +6,8 @@ var checkRole = require('../services/checkRole')
 
 router.post('/addProduct', auth.authenticateToken, checkRole.checkRole, (req, res, next) => {
     let product = req.body;
-    var sqlQuery = 'insert into product (name,categoyId,description,price,status) values(?,?,?,?,"true")';
-    connection.query(sqlQuery, [product.name, product.categoyId, product.description, product.price], (error, result) => {
+    var sqlQuery = 'insert into product (name,categoryId,description,price,status) values(?,?,?,?,"true")';
+    connection.query(sqlQuery, [product.name, product.categoryId, product.description, product.price], (error, result) => {
         if (!error) {
             return res.status(200).json({
                 message: "Product added successfully"
@@ -21,7 +21,7 @@ router.post('/addProduct', auth.authenticateToken, checkRole.checkRole, (req, re
 
 
 router.get('/getProduct', auth.authenticateToken, (req, res) => {
-    var sqlQuery = 'select p.name,p.description,p.price,p.status,c.name as categoryName from product as p inner join category as c where p.categoyId=c.id'
+    var sqlQuery = 'select p.name,p.description,p.price,p.status,c.name as categoryName from product as p inner join category as c where p.categoryId=c.id'
     connection.query(sqlQuery, (error, result) => {
         if (!error) {
             return res.status(200).json({
@@ -37,8 +37,10 @@ router.get('/getProduct', auth.authenticateToken, (req, res) => {
 
 router.get('/getByCategory/:id', auth.authenticateToken, (req, res, next) => {
     const id = req.params.id;
-    var sqlQuery = 'select id,name where categoyId=? and status="true"'
+    var sqlQuery = "select id,name from product where categoryId=? and status='true'"
     connection.query(sqlQuery, [id], (error, result) => {
+        console.log(result);
+
         if (!error) {
             return res.status(200).json({
                 data: result
@@ -52,7 +54,7 @@ router.get('/getByCategory/:id', auth.authenticateToken, (req, res, next) => {
 
 router.get('/getByProduct/:id', auth.authenticateToken, (req, res, next) => {
     const id = req.params.id;
-    var sqlQuery = 'select id,name,descrption,price where id=?'
+    var sqlQuery = 'select id,name,description,price from product where id=?'
     connection.query(sqlQuery, [id], (error, result) => {
         if (!error) {
             return res.status(200).json({
