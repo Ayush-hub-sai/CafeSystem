@@ -40,7 +40,7 @@ router.patch('/updateCategory', auth.authenticateToken, checkRole.checkRole, (re
                 })
             } else {
                 return res.status(200).json({
-                    messsage: "Category updated successfully"
+                    message: "Category updated successfully"
                 })
             }
         } else {

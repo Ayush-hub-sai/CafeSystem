@@ -45,7 +45,7 @@ router.delete('/deleteBill/:id', auth.authenticateToken, checkRole.checkRole, (r
                 })
             } else {
                 return res.status(200).json({
-                    messsage: "Order  deleted successfully"
+                    message: "Order  deleted successfully"
                 })
             }
         } else {

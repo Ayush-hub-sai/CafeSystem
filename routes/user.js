@@ -20,6 +20,7 @@ router.post('/signup', (req, response) => {
                 connection.query(query, [user.name, user.contactNumber, user.email, user.password], (err, results) => {
                     if (!err) {
                         return response.status(200).json({
+                            status: 1,
                             message: 'Successfully Registered'
                         })
                     } else {
@@ -61,8 +62,11 @@ router.post('/login', (req, res) => {
                     expiresIn: '8h'
                 })
                 res.status(200).json({
+                    status: 1,
+                    message: "User logged in successfully",
                     token: accessToken
                 })
+                console.log(res);
             } else {
                 return res.status(400).json({
                     message: 'Something went wrong, Please try again later.'
@@ -118,12 +122,14 @@ router.post('/login', (req, res) => {
 // })
 
 router.get('/getAllUser', auth.authenticateToken, (req, res) => {
-    var sqlQuery = 'select id,name,email,contactNumber from user where role="user"';
+    var sqlQuery = 'select id,name,email,contactNumber,status from user where role="user"';
     connection.query(sqlQuery, (error, result) => {
         if (!error) {
             return res.status(200).json(result)
         } else {
-            return res.status(500).json(error)
+            return res.status(500).json({
+                message: "user not authorized"
+            })
         }
     })
 })
@@ -139,6 +145,7 @@ router.patch('/updateStatus', auth.authenticateToken, (req, res) => {
                 })
             } else {
                 return res.status(200).json({
+                    status: 1,
                     message: 'User status updated successfully'
                 })
             }
@@ -188,8 +195,9 @@ router.patch('/updatePassword', (req, res) => {
 })
 
 router.get('/checkToken', auth.authenticateToken, (req, res) => {
+
     return res.status(200).json({
-        message: 'true'
+        status: 1
     })
 })
 

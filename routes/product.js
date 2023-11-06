@@ -21,7 +21,7 @@ router.post('/addProduct', auth.authenticateToken, checkRole.checkRole, (req, re
 
 
 router.get('/getProduct', auth.authenticateToken, (req, res) => {
-    var sqlQuery = 'select p.name,p.description,p.price,p.status,c.name as categoryName from product as p inner join category as c where p.categoryId=c.id'
+    var sqlQuery = 'select p.id, p.name,p.description,p.price,p.status,c.name as categoryName from product as p inner join category as c where p.categoryId=c.id'
     connection.query(sqlQuery, (error, result) => {
         if (!error) {
             return res.status(200).json({
@@ -39,8 +39,6 @@ router.get('/getByCategory/:id', auth.authenticateToken, (req, res, next) => {
     const id = req.params.id;
     var sqlQuery = "select id,name from product where categoryId=? and status='true'"
     connection.query(sqlQuery, [id], (error, result) => {
-        console.log(result);
-
         if (!error) {
             return res.status(200).json({
                 data: result
@@ -77,7 +75,7 @@ router.patch('/updateProduct', auth.authenticateToken, checkRole.checkRole, (req
                 })
             } else {
                 return res.status(200).json({
-                    messsage: "Product updated successfully"
+                    message: "Product updated successfully"
                 })
             }
         } else {
@@ -98,7 +96,7 @@ router.delete('/deleteProduct/:id', auth.authenticateToken, checkRole.checkRole,
                 })
             } else {
                 return res.status(200).json({
-                    messsage: "Product deleted successfully"
+                    message: "Product deleted successfully"
                 })
             }
         } else {
@@ -118,7 +116,8 @@ router.patch('/updateProductStatus', auth.authenticateToken, checkRole.checkRole
                 })
             } else {
                 return res.status(200).json({
-                    messsage: "Product status updated successfully"
+                    status: 1,
+                    message: "Product status updated successfully"
                 })
             }
         } else {
